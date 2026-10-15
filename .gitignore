@@ -1,0 +1,7 @@
+node_modules/
+output/
+.claude/
+.DS_Store
+*.jpeg
+*.jpg
+!examples/*.jpg

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>shapedraw</title>
+  <style>
+    :root {
+      --bg: #f6f5f2;
+      --panel: #ffffff;
+      --text: #1d1c1a;
+      --muted: #6b6862;
+      --line: #e3e0da;
+      --accent: #d9622b;
+      --accent-text: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161514;
+        --panel: #1f1e1c;
+        --text: #ecebe8;
+        --muted: #9a968f;
+        --line: #33312e;
+        --accent: #f07a43;
+        --accent-text: #161514;
+      }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+    header h1 { margin: 0; font-size: 28px; letter-spacing: -0.02em; }
+    header p { margin: 4px 0 24px; color: var(--muted); }
+    header a { color: inherit; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 4px; }
+    label:first-child { margin-top: 0; }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .row { display: flex; justify-content: space-between; align-items: baseline; }
+    .row output { font-variant-numeric: tabular-nums; font-size: 13px; }
+    .drop {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1.5px dashed var(--line);
+      border-radius: 10px;
+      padding: 18px 12px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .drop.over { border-color: var(--accent); color: var(--text); }
+    .drop input { display: none; }
+    .buttons { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    button {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+    button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .stage { grid-template-columns: 1fr; } }
+    figure { margin: 0; }
+    figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    canvas, .stage img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      background: var(--line);
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .stats b { color: var(--text); font-weight: 600; }
+    .empty { padding: 80px 16px; text-align: center; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>shapedraw</h1>
+      <p>Reproduce an image with geometric shapes, in your browser. A JavaScript port of
+        <a href="https://github.com/fogleman/primitive">fogleman/primitive</a>.</p>
+    </header>
+    <div class="layout">
+      <aside class="panel">
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept="image/*" />
+          <span id="drop-text">Drop an image here, or click to choose one</span>
+        </label>
+        <label for="mode">Shape</label>
+        <select id="mode">
+          <option value="1">Triangles</option>
+          <option value="2">Rectangles</option>
+          <option value="3">Ellipses</option>
+          <option value="4">Circles</option>
+          <option value="5">Rotated rectangles</option>
+          <option value="7">Rotated ellipses</option>
+          <option value="8">Polygons</option>
+          <option value="6">Beziers</option>
+          <option value="0">Combo (all of the above)</option>
+        </select>
+        <div class="row"><label for="count">Shapes</label><output id="count-out"></output></div>
+        <input type="range" id="count" min="10" max="2000" step="10" value="300" />
+        <div class="row"><label for="alpha">Opacity</label><output id="alpha-out"></output></div>
+        <input type="range" id="alpha" min="0" max="255" value="128" />
+        <div class="row"><label for="repeat">Extra shapes per step</label><output id="repeat-out"></output></div>
+        <input type="range" id="repeat" min="0" max="5" value="0" />
+        <label for="workers">Worker threads</label>
+        <input type="number" id="workers" min="1" max="64" />
+        <div class="buttons">
+          <button class="primary" id="start" disabled>Start</button>
+          <button id="stop" disabled>Stop</button>
+        </div>
+        <div class="buttons">
+          <button id="svg" disabled>Download SVG</button>
+          <button id="png" disabled>Download PNG</button>
+        </div>
+      </aside>
+      <section>
+        <div class="stage" id="stage" hidden>
+          <figure><img id="original" alt="Original image" /><figcaption>Original</figcaption></figure>
+          <figure><canvas id="canvas"></canvas><figcaption id="caption">Shapes</figcaption></figure>
+        </div>
+        <div class="panel empty" id="empty">Choose an image to get started.</div>
+        <div class="stats" id="stats" hidden>
+          <span>Shapes <b id="s-shapes">0</b></span>
+          <span>Similarity <b id="s-score">–</b></span>
+          <span>Elapsed <b id="s-time">0.0s</b></span>
+          <span>Speed <b id="s-speed">–</b></span>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

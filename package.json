@@ -1,0 +1,41 @@
+{
+  "name": "shapedraw",
+  "version": "0.1.0",
+  "description": "Reproduce images with geometric primitives. A JavaScript port of fogleman/primitive.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./node": "./src/node/index.js",
+    "./web": "./src/web/threads.js"
+  },
+  "bin": {
+    "shapedraw": "bin/shapedraw.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test test/",
+    "demo": "npx --yes http-server@14.1.1 -c-1 -p 8080 ."
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "primitive",
+    "geometry",
+    "art",
+    "image",
+    "svg",
+    "triangles",
+    "hill-climbing"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "gifenc": "1.0.3",
+    "jpeg-js": "0.4.4",
+    "pngjs": "7.0.0"
+  }
+}
