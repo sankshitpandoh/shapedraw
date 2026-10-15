@@ -5,3 +5,4 @@ output/
 *.jpeg
 *.jpg
 !examples/*.jpg
+!site/img/*.jpg

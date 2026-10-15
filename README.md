@@ -78,7 +78,7 @@ shapedraw -i in.jpg -o out.gif -n 200
 
 ## Browser
 
-Use the [live demo](https://sankshitpandoh.github.io/shapedraw/), or serve the repository root over HTTP and open `/demo/`:
+Use the [live demo](https://sankshitpandoh.github.io/shapedraw/), or serve the repository root over HTTP:
 
 ```bash
 npm run demo   # then visit http://localhost:8080/
