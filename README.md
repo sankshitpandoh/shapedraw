@@ -6,7 +6,7 @@ shapedraw is a ground-up JavaScript port of Michael Fogleman's
 [primitive](https://github.com/fogleman/primitive). It runs as a Node CLI with the same flags as the
 original, as a library, and in the browser, with no native dependencies.
 
-**[Try it in your browser →](https://sankshitpandoh.github.io/shapedraw/demo/)**
+**[Try it in your browser →](https://sankshitpandoh.github.io/shapedraw/)**
 
 | 500 triangles | 400 rotated ellipses | 400 mixed shapes |
 | --- | --- | --- |
@@ -78,10 +78,10 @@ shapedraw -i in.jpg -o out.gif -n 200
 
 ## Browser
 
-Use the [live demo](https://sankshitpandoh.github.io/shapedraw/demo/), or serve the repository root over HTTP and open `/demo/`:
+Use the [live demo](https://sankshitpandoh.github.io/shapedraw/), or serve the repository root over HTTP and open `/demo/`:
 
 ```bash
-npm run demo   # then visit http://localhost:8080/demo/
+npm run demo   # then visit http://localhost:8080/
 ```
 
 Drop in an image and watch it being drawn. The search runs in Web Workers, one per core, and you can

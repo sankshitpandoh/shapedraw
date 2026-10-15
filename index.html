@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shapedraw</title>
+  <meta name="description" content="Reproduce any picture with a few hundred geometric shapes, in your browser. A JavaScript edition of Michael Fogleman's primitive." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site/style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 27 16 5l12 22z' fill='%23c4432b'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <header class="masthead wrap">
+    <div class="masthead-meta">
+      <span>No. 01</span>
+      <span class="hide-sm">An instrument for reducing pictures to geometry</span>
+      <span>Free &amp; open source</span>
+    </div>
+    <h1 class="wordmark"><a href="./">Shapedraw</a></h1>
+    <nav class="masthead-nav" aria-label="Sections">
+      <a href="#studio">The Studio</a>
+      <a href="#method">The Method</a>
+      <a href="#catalogue">Catalogue</a>
+      <a href="#reference">Reference</a>
+      <a href="https://github.com/sankshitpandoh/shapedraw">Source&nbsp;↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="lede wrap">
+      <p class="kicker">The Front Page</p>
+      <h2 class="headline">Every picture, rebuilt from a few hundred shapes.</h2>
+      <div class="standfirst">
+        <p>Give Shapedraw a photograph and it paints it again using nothing but translucent triangles,
+          ellipses, rectangles or curves. Each shape is placed where it does the most good, one at a time,
+          until the likeness emerges.</p>
+        <p class="byline">A JavaScript edition of Michael Fogleman's
+          <a href="https://github.com/fogleman/primitive"><i>primitive</i></a>. Runs entirely in your browser.</p>
+      </div>
+    </section>
+
+    <section id="studio" class="studio wrap" aria-labelledby="studio-title">
+      <div class="section-head">
+        <span class="section-no">I.</span>
+        <h2 id="studio-title">The Studio</h2>
+        <span class="section-note">Drop in a picture of your own, or watch the sample.</span>
+      </div>
+
+      <div class="studio-grid">
+        <figure class="plate" id="plate">
+          <div class="plate-frame" id="drop">
+            <canvas id="canvas" width="1024" height="1024" aria-label="Shapedraw rendering"></canvas>
+            <div class="drop-hint" id="drop-hint">Release to use this picture</div>
+          </div>
+          <figcaption>
+            <span class="plate-no">Plate I.</span>
+            <span id="caption">Preparing the sample…</span>
+          </figcaption>
+        </figure>
+
+        <aside class="controls" aria-label="Settings">
+          <div class="source">
+            <figure>
+              <img id="original" alt="The source picture" />
+              <figcaption>Source</figcaption>
+            </figure>
+            <div class="source-actions">
+              <label class="link-button">
+                <input type="file" id="file" accept="image/*" />
+                Choose a picture…
+              </label>
+              <button type="button" class="link-button" id="sample">Use the sample</button>
+            </div>
+          </div>
+
+          <fieldset class="field">
+            <legend>Shape</legend>
+            <div class="shape-list" id="mode">
+              <label><input type="radio" name="mode" value="1" checked /><span class="n">01</span>Triangles</label>
+              <label><input type="radio" name="mode" value="2" /><span class="n">02</span>Rectangles</label>
+              <label><input type="radio" name="mode" value="3" /><span class="n">03</span>Ellipses</label>
+              <label><input type="radio" name="mode" value="4" /><span class="n">04</span>Circles</label>
+              <label><input type="radio" name="mode" value="5" /><span class="n">05</span>Rotated rectangles</label>
+              <label><input type="radio" name="mode" value="7" /><span class="n">06</span>Rotated ellipses</label>
+              <label><input type="radio" name="mode" value="8" /><span class="n">07</span>Polygons</label>
+              <label><input type="radio" name="mode" value="6" /><span class="n">08</span>Beziers</label>
+              <label><input type="radio" name="mode" value="0" /><span class="n">09</span>All of the above</label>
+            </div>
+          </fieldset>
+
+          <div class="field range">
+            <label for="count">Shapes</label>
+            <output id="count-out" for="count"></output>
+            <input type="range" id="count" min="10" max="2000" step="10" value="300" />
+          </div>
+          <div class="field range">
+            <label for="alpha">Opacity</label>
+            <output id="alpha-out" for="alpha"></output>
+            <input type="range" id="alpha" min="0" max="255" value="128" />
+          </div>
+          <div class="field range">
+            <label for="repeat">Extra shapes per step</label>
+            <output id="repeat-out" for="repeat"></output>
+            <input type="range" id="repeat" min="0" max="5" value="0" />
+          </div>
+
+          <div class="actions">
+            <button type="button" class="button primary" id="start">Begin</button>
+            <button type="button" class="button" id="stop" disabled>Stop</button>
+          </div>
+
+          <dl class="ledger" aria-live="polite">
+            <div><dt>Shapes</dt><dd id="s-shapes">0</dd></div>
+            <div><dt>Likeness</dt><dd id="s-score">–</dd></div>
+            <div><dt>Elapsed</dt><dd id="s-time">–</dd></div>
+            <div><dt>Tried / sec.</dt><dd id="s-speed">–</dd></div>
+          </dl>
+
+          <p class="exports">
+            Save as <button type="button" class="link-button" id="svg" disabled>SVG</button>
+            or <button type="button" class="link-button" id="png" disabled>PNG</button>
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="method" class="method wrap" aria-labelledby="method-title">
+      <div class="section-head">
+        <span class="section-no">II.</span>
+        <h2 id="method-title">The Method</h2>
+        <span class="section-note">How a picture is taken apart and put back together.</span>
+      </div>
+
+      <div class="essay">
+        <p class="dropcap">The program never sees the photograph as a subject, only as a field of colours to be
+          matched. It begins with a blank canvas painted in the picture's average colour, and asks a single
+          question over and over: <em>of every shape I could add next, which one would bring this canvas
+          closest to the original?</em></p>
+        <p>There are far too many possible shapes to try them all, so it guesses well instead. A thousand
+          shapes are thrown down at random. For each, the best colour can be worked out directly, as an
+          average of what lies beneath it, and the improvement it would make is measured as the change in
+          pixel-by-pixel error. Only the pixels the shape covers need to be checked, which is what makes
+          the whole enterprise fast.</p>
+        <blockquote class="pull">A thousand guesses, a hundred small corrections, and the best of sixteen
+          attempts. Then the next shape.</blockquote>
+        <p>The most promising guess is then refined by hill climbing. A vertex is nudged, an angle turned, a
+          radius stretched; any change that helps is kept, and the search stops once a hundred changes in a
+          row have failed. Sixteen of these searches run side by side, spread across every core of your
+          machine, and the overall winner is painted on.</p>
+        <p>The work happens on a small copy of the picture, 256 pixels across, where it can try around a
+          million shapes a second. The finished shapes are recorded as geometry, so the final image can be
+          drawn again at any size, as a sharp PNG or as an SVG that will print cleanly on a wall.</p>
+      </div>
+
+      <div class="progression">
+        <figure><img src="site/img/progress-10.jpg" alt="The Mona Lisa drawn with 10 triangles" loading="lazy" /><figcaption><b>10</b> shapes</figcaption></figure>
+        <figure><img src="site/img/progress-50.jpg" alt="The Mona Lisa drawn with 50 triangles" loading="lazy" /><figcaption><b>50</b> shapes</figcaption></figure>
+        <figure><img src="site/img/progress-150.jpg" alt="The Mona Lisa drawn with 150 triangles" loading="lazy" /><figcaption><b>150</b> shapes</figcaption></figure>
+        <figure><img src="site/img/progress-400.jpg" alt="The Mona Lisa drawn with 400 triangles" loading="lazy" /><figcaption><b>400</b> shapes</figcaption></figure>
+        <p class="fig-note"><span class="plate-no">Fig. 1.</span> The same portrait at four stages. The broad
+          masses of colour arrive first; the face only resolves once the large errors are gone.</p>
+      </div>
+    </section>
+
+    <section id="catalogue" class="catalogue wrap" aria-labelledby="catalogue-title">
+      <div class="section-head">
+        <span class="section-no">III.</span>
+        <h2 id="catalogue-title">A Catalogue of Shapes</h2>
+        <span class="section-note">Two hundred of each, except where noted.</span>
+      </div>
+      <div class="specimens">
+        <figure><img src="site/img/mode-1.jpg" alt="Portrait in triangles" loading="lazy" /><figcaption><span class="n">No. 1</span> Triangles <code>-m 1</code></figcaption></figure>
+        <figure><img src="site/img/mode-2.jpg" alt="Portrait in rectangles" loading="lazy" /><figcaption><span class="n">No. 2</span> Rectangles <code>-m 2</code></figcaption></figure>
+        <figure><img src="site/img/mode-3.jpg" alt="Portrait in ellipses" loading="lazy" /><figcaption><span class="n">No. 3</span> Ellipses <code>-m 3</code></figcaption></figure>
+        <figure><img src="site/img/mode-4.jpg" alt="Portrait in circles" loading="lazy" /><figcaption><span class="n">No. 4</span> Circles <code>-m 4</code></figcaption></figure>
+        <figure><img src="site/img/mode-5.jpg" alt="Portrait in rotated rectangles" loading="lazy" /><figcaption><span class="n">No. 5</span> Rotated rectangles <code>-m 5</code></figcaption></figure>
+        <figure><img src="site/img/mode-7.jpg" alt="Portrait in rotated ellipses" loading="lazy" /><figcaption><span class="n">No. 6</span> Rotated ellipses <code>-m 7</code></figcaption></figure>
+        <figure><img src="site/img/mode-8.jpg" alt="Portrait in four-sided polygons" loading="lazy" /><figcaption><span class="n">No. 7</span> Polygons <code>-m 8</code></figcaption></figure>
+        <figure><img src="site/img/mode-6.jpg" alt="Portrait in bezier curves" loading="lazy" /><figcaption><span class="n">No. 8</span> Beziers, six hundred <code>-m 6</code></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="reference" class="reference wrap" aria-labelledby="reference-title">
+      <div class="section-head">
+        <span class="section-no">IV.</span>
+        <h2 id="reference-title">Reference</h2>
+        <span class="section-note">For the command line and for your own code.</span>
+      </div>
+
+      <div class="ref-grid">
+        <div class="ref-intro">
+          <h3>Installation</h3>
+          <p>Shapedraw needs Node 18 or newer and has no native dependencies.</p>
+<pre><code>git clone https://github.com/sankshitpandoh/shapedraw
+cd shapedraw &amp;&amp; npm install &amp;&amp; npm link
+
+shapedraw -i photo.jpg -o out.svg -n 300</code></pre>
+          <h3>Layering</h3>
+          <p>Flags are read in order, so shape types can be stacked: block in the composition with
+            rectangles, then add detail with triangles.</p>
+<pre><code>shapedraw -i photo.jpg -o out.png \
+  -m 2 -n 50 -m 1 -n 250</code></pre>
+          <h3>As a library</h3>
+<pre><code>import { Model, thumbnail } from 'shapedraw';
+import { createNodePool, loadImage } from 'shapedraw/node';
+
+const target = thumbnail(loadImage('in.jpg'), 256);
+const model = new Model(target, { pool: createNodePool() });
+for (let i = 0; i &lt; 200; i++) await model.step(1, 128, 0);
+console.log(model.svg());
+model.close();</code></pre>
+        </div>
+
+        <dl class="flags">
+          <div><dt>-i <var>path</var></dt><dd>The picture to reproduce, PNG or JPEG.</dd></div>
+          <div><dt>-o <var>path</var></dt><dd>Where to write it: <code>.png</code>, <code>.jpg</code>, <code>.svg</code> or <code>.gif</code>. Repeatable. Put <code>%d</code> in the name to keep every frame.</dd></div>
+          <div><dt>-n <var>count</var></dt><dd>How many shapes to add.</dd></div>
+          <div><dt>-m <var>mode</var></dt><dd>0 all, 1 triangles, 2 rectangles, 3 ellipses, 4 circles, 5 rotated rectangles, 6 beziers, 7 rotated ellipses, 8 polygons. Default 1.</dd></div>
+          <div><dt>-a <var>alpha</var></dt><dd>Opacity of each shape, 1 to 255; 0 lets each shape choose. Default 128.</dd></div>
+          <div><dt>-rep <var>n</var></dt><dd>Add up to <var>n</var> extra shapes per step with a cheaper search.</dd></div>
+          <div><dt>-bg <var>hex</var></dt><dd>Starting colour. Defaults to the picture's average.</dd></div>
+          <div><dt>-r <var>size</var></dt><dd>Working size for the search. Default 256.</dd></div>
+          <div><dt>-s <var>size</var></dt><dd>Size of the finished image. Default 1024.</dd></div>
+          <div><dt>-j <var>n</var></dt><dd>Worker threads. Defaults to every core.</dd></div>
+          <div><dt>-nth <var>n</var></dt><dd>With <code>%d</code> outputs, keep every <var>n</var>th frame.</dd></div>
+          <div><dt>-seed <var>n</var></dt><dd>Fix the random seed to repeat a result exactly.</dd></div>
+          <div><dt>-v, -vv</dt><dd>Report progress, or a great deal of it.</dd></div>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <footer class="colophon wrap">
+    <p><span class="kicker">Colophon</span> The method and the original program are by
+      <a href="https://github.com/fogleman/primitive">Michael Fogleman</a> (2016), written in Go. This edition
+      is a rewrite in JavaScript by <a href="https://github.com/sankshitpandoh">Sankshit Pandoh</a>,
+      published under the MIT licence. Set in Newsreader and IBM Plex Mono. The sample is Leonardo's
+      <i>Mona Lisa</i>, in the public domain.</p>
+    <p class="colophon-links"><a href="https://github.com/sankshitpandoh/shapedraw">Source on GitHub ↗</a></p>
+  </footer>
+
+  <script type="module" src="site/studio.js"></script>
+</body>
+</html>
