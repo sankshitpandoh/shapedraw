@@ -192,6 +192,54 @@ figcaption,
   border-top: 1px solid var(--hair);
 }
 
+.lede-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin: 22px 0 0;
+}
+
+.lede-link {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* A link styled as one of the square studio buttons. */
+a.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  line-height: 1;
+}
+
+a.button:hover {
+  color: var(--paper);
+}
+
+a.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.gh-button {
+  padding: 13px 16px;
+}
+
+.gh-mark {
+  flex: none;
+}
+
+.gh-button .arrow {
+  margin-left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.gh-button:hover .arrow {
+  transform: translate(2px, -2px);
+}
+
 /* Section heads ------------------------------------------------------ */
 
 section {
@@ -796,8 +844,7 @@ pre {
 
 .colophon .colophon-links {
   border-top: 0;
-  padding-top: 10px;
-  font-style: italic;
+  padding-top: 18px;
 }
 
 /* Responsive ------------------------------------------------------------ */
